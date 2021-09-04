@@ -1,0 +1,113 @@
+<%- include('partials/header.ejs') %>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<h1 class="loginTitle">Login</h1>
+
+<div style="margin: 10px 0px 0px 10px;">
+    
+<form class="formElement">
+
+    <div class="row">
+        <label for="phonenumber">Phone Number</label>
+        <input name="phonenumber" id="phonenumber" type="tel">
+        <div class="phonenumber error"></div>
+    </div>
+
+    
+    <div class="row">
+        <label for="password">Password</label>
+        <input name="password" id="password" type="password">
+        <i class="fas fa-eye-slash" id="togglePassword"></i>
+        <div class="password error"></div>
+    </div>
+
+    <button type="submit" style="margin: 5px 0px 5px 0px">Login</button>
+    <div class="submissionStatus success"></div>
+
+</form>
+
+<p>New user ? <a href="register">Register</a></p>
+<a href="index">Home</a>
+
+
+</div>
+
+
+<script>
+
+
+    const form = document.querySelector("form");
+    const togglePassword = document.querySelector("#togglePassword");
+    const password = document.querySelector("#password");
+    const submissionStatus = document.querySelector(".submissionStatus");
+
+
+
+    const phonenumberError = document.querySelector(".phonenumber.error");
+    const passwordError = document.querySelector(".password.error");
+    
+
+    togglePassword.addEventListener("click", (event) => {
+
+        const type = password.getAttribute("type") === "password" ? "text" : "password";
+        password.setAttribute("type", type);
+
+        if(type === "text")
+            togglePassword.setAttribute("class","fas fa-eye");
+        else
+            togglePassword.setAttribute("class","fas fa-eye-slash");
+    });
+
+    
+
+
+    form.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+
+        const phonenumber = form.phonenumber.value;
+        const password = form.password.value;
+
+
+        console.log("FORM VALUES", phonenumber, password);
+
+
+        phonenumberError.textContent = "";
+        passwordError.textContent = "";
+        
+
+        try{
+
+            const res = await fetch("/login", {
+                method : "POST",
+                body : JSON.stringify({phonenumber, password}),
+                headers : {'Content-Type' : 'application/json'}
+            });
+
+            const response = await res.json();
+            
+            if(response.errors){
+
+                phonenumberError.textContent = response.errors.phonenumber;
+                passwordError.textContent = response.errors.password;
+
+            }
+            if(response.user){
+
+                submissionStatus.innerHTML = "Success";
+                console.log(response.user);
+                location.assign("dashboard");
+            }
+        }
+        catch(error){
+
+            console.log("Error catched in login\.ejs", error);
+
+        }
+
+    })
+
+
+</script>

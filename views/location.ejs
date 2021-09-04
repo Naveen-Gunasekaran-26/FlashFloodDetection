@@ -1,0 +1,226 @@
+<style>
+    *{
+        margin: 0;
+    }
+
+    html{
+
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        background-color: #ebe5e5;
+    }
+
+    .chartContainer{
+        margin : 20px;
+        padding : 10px;
+        height: 300px;
+        width : 45%;
+        display: inline-block;
+
+    }
+
+    .sensorDataContainer{
+        background-color: rgb(230, 216, 231);
+        margin : 30px 20px;
+        border: solid rgb(54, 15, 73);
+        padding: 20px;
+        width: 300px;
+        border-radius: 20px;
+    }
+
+    .locationTitle{
+        background-color: #301b3f;
+        color: white;
+        padding: 20px;
+        border : solid black;
+    }
+    
+    button{
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 15px;
+        border: transparent;
+        background-color: rgb(217, 161, 224);
+        color: black;
+        transition: background-color 0.1s, color 0.2s;
+    }
+
+    button:hover{
+        background-color: rgb(75, 24, 83);
+        color: white;
+        cursor: pointer;
+    }
+
+    .locationDataBody{
+        margin-left: 30px;
+    }
+
+
+</style>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<h1 class="locationTitle">Location : <%= locationName %></h1>
+<button onclick=backToDashboard(event) style="margin: 10px 0px 0px 10px">Back to dashboard</button>
+<body>
+<div class="locationDataBody">
+    
+    <div class="sensorDataContainer"></div>
+
+    <div class="chartContainer">
+        <h3>Flow Rate (Litres/Hr)</h3>
+        <div class="chart" id="flowRateChart"></div>
+    </div>
+
+    <div class="chartContainer">
+        <h3>Water Temperature (°C)</h3>
+        <div class="chart" id="waterTemperatureChart"></div>
+    </div>
+    
+    <div class="chartContainer">
+        <h3>Distance (cm)</h3>
+        <div class="chart" id="distanceChart"></div>
+    </div>
+    
+    <div class="chartContainer">
+        <h3>Humidity (%)</h3>
+        <div class="chart" id="humidityChart"></div>
+    </div>
+    
+    <div class="chartContainer">
+        <h3>Temperature (°C)</h3>
+        <div class="chart" id="temperatureChart"></div>
+    </div>
+
+
+</div>
+</body>
+
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="/socket.io/socket.io.js"></script>
+    
+
+<script>
+    
+    function backToDashboard(e){
+        location.assign("/dashboard");
+    }
+
+    const socket = io();
+    const locationName = <%- JSON.stringify(locationName) %>;
+    
+    const sensorDataContainer = document.querySelector(".sensorDataContainer");
+    sensorDataContainer.innerHTML = "Loading...";
+    
+
+    
+
+    let dps = [];
+    let distanceDPS = [];
+    let flowRateDPS = [];
+    let waterTemperatureDPS = [];
+    let temperatureDPS = [];
+    let humidityDPS = [];
+
+
+    let XVAL = dps.length+1;
+
+
+    function createChart(yAxisTitle, chartID, dps, maxVal, minVal){
+            
+        var options = {
+            chart: {
+                type: 'line',
+                height : "100%",
+                width : "100%",
+                id : chartID,
+                animations: {
+                    enabled: false
+                },
+                toolbar : {
+                    show : false
+                }
+            },
+            series: [{
+                name: yAxisTitle,
+                data: dps
+            }],
+            yaxis : {
+                // max : dps[dps.length-1] < maxVal ? dps[dps.length-1] : maxVal ,
+                // min : minVal,
+                title : {
+                    text : yAxisTitle
+                }
+            },
+            xaxis : {
+                type : "numeric",
+                labels : {
+                    show : false
+                },
+                title : {
+                    text : "Time"
+                }
+            },
+            stroke : {
+                curve : "smooth",
+                lineCap : "butt",
+                width : 2
+            },
+            theme : {
+                palette : "palette8"
+            }
+        }
+
+        const chart = new ApexCharts(document.querySelector(`#${chartID}`), options);
+        chart.render();
+        return chart;
+    }
+    
+    function updateChartData(chart, dps, value)
+    {
+        dps.push(value);
+        chart.updateSeries([{
+            data : dps
+        }])
+        if(dps.length > 100)
+            dps.shift();    
+    }
+
+
+
+
+    const flowRateChart = createChart("Flow Rate (Litres/hr)", "flowRateChart", flowRateDPS, 2000, 0);
+    const waterTemperatureChart = createChart("Water Temperature (°C)", "waterTemperatureChart", waterTemperatureDPS, 45, 20);
+    const distanceChart = createChart("Distance (cm)", "distanceChart", distanceDPS, 2000, 0);
+    const humidityChart = createChart("Humidity (%)", "humidityChart", humidityDPS, 100, 0);
+    const temperatureChart = createChart("Temperature (°C)", "temperatureChart", temperatureDPS, 40, 20);
+
+
+
+    console.log(locationName);
+
+
+    socket.on("EstablishConnection",()=>{
+        socket.emit("UserConnected", locationName)
+    })
+
+
+    socket.on("locationDataForUser", data => {
+        sensorDataContainer.innerHTML = "";
+        sensorDataContainer.innerHTML += 
+        `
+        <div style="margin: 5px;">Flow rate          : ${data.flowRate} Litres/hr</div>
+        <div style="margin: 5px;">Water temperature  : ${data.waterTemperature} °C</div>
+        <div style="margin: 5px;">Distance           : ${data.distance} cm</div>
+        <div style="margin: 5px;">Humidity           : ${data.humidity} %</div>
+        <div style="margin: 5px;">Temperature        : ${data.temperature} °C</div>
+        `
+        
+        updateChartData(flowRateChart, flowRateDPS, parseFloat(data.flowRate));
+        updateChartData(waterTemperatureChart, waterTemperatureDPS, parseFloat(data.waterTemperature));
+        updateChartData(distanceChart, distanceDPS, parseFloat(data.distance));
+        updateChartData(humidityChart, humidityDPS, parseFloat(data.humidity));
+        updateChartData(temperatureChart, temperatureDPS, parseFloat(data.temperature));
+    })
+
+</script>

@@ -1,0 +1,179 @@
+<link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<h1 class="DashboardTitle">Dashboard</h1>
+<body>
+<div class="dashboardBody" style="margin: 20px 0px 0px 60px">
+    
+    <h2>Welcome <%= user.username%> <span class="phoneNumberHolder"><%= user.phonenumber %></span></h2>
+    <button id="selectLocationsButton" style="margin: 20px 0px 10px 0px">Select Locations</button>
+    <button id="logoutButton">Logout</button>
+
+    <div class="selectLocationsModal modal">
+        <div class="selectLocationsModalContent modalContent">
+            
+            <div class="modalContent">
+                <div class="selectLocationsModalHeader">
+                    <div class="closeButtonInLocationsModal closeButtonInModal">&times;</div>
+                    <h2 style="margin: 10px 0px 20px 0px;">Select Locations</h2>
+                </div>
+                
+                <div class="selectLocationsModalBody">
+                    <div class="availableLocations"></div>
+                </div>
+                
+                <div class="selectLocationsModalFooter" style="margin-top: 30px;">
+                    <button id="updateButton" style="float: inline-start;">Update</button>
+                    <button id="clearButton" style="float: inline-start;">Clear</button>
+                    <button id="cancelButtonInLocations" style="float: inline-start;">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="logoutModal modal">
+        <div class="logoutModalContent modalContent">
+            
+            <div class="modalContent">
+                <div class="logoutModalHeader">
+                    <div class="closeButtonInLogoutModal closeButtonInModal">&times;</div>
+                    <h2 style="margin-top: 10px;">Logout</h2>
+                </div>
+                
+                <div class="logoutModalBody" style="margin: 20px 0px 30px 0px; font-size: 18px;">
+                    Are you sure ?
+                </div>
+                
+                <div class="logoutModalFooter" style="margin-top: 30px;">
+                    <button id="logoutButtonInLogout">Logout</button>
+                    <button id="cancelButtonInLogout">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="userContent">
+    </div>
+
+</div>
+</body>
+
+
+<!-- <script src="ejs.min.js"></script> -->
+<script>
+    
+    const User = <%-JSON.stringify(user)%>
+
+    const availableLocations = <%- JSON.stringify(availableLocations) %>;
+    availableLocations.forEach(location => {
+        document.querySelector(".availableLocations").innerHTML += 
+        `<div style="margin-top: 10px; margin-bottom: 10px;" class="${location}">
+            <input type="checkbox" id="${location}Checkbox" class="LocationCheckbox" name="${location}"/>
+            <label for="${location}Checkbox">${location}</label>
+        </div>`
+    })
+
+    const userContent = document.querySelector(".userContent");
+
+    if(User.locations.length != 0){
+
+        userContent.innerHTML = "<div>"
+        userContent.innerHTML += 
+        `
+        <h2 style="margin: 10px 0px 10px 0px">
+            Your locations
+        </h2>
+        <p>Click to view the respective analytics of the location.</p>
+        <p style="margin: 0px 0px 20px 0px">You can select the locations to be monitored by clicking on the "Select Locations" button above.</p>
+        `
+
+        User.locations.forEach(location => {
+            userContent.innerHTML +=
+        `
+        <div class="locationTile" onclick="redirectToLocation(event)" value="${location}">
+            ${location}
+        </div>
+        `
+        })
+        userContent.innerHTML += "</div>"
+    }
+    else{
+        userContent.innerHTML = 
+        `
+        <div style="margin-top: 10px;">
+            <p>You have not selected any locations.</p>
+            <p>You can select the locations to be monitored by clicking on the "Select Locations" button above.</p>
+        </div>
+        `
+    }
+
+    async function redirectToLocation(event){
+        
+        const location = event.target.getAttribute("value");
+        window.location.assign("/locations/" + location);
+    }
+
+
+    function openLocationsModal(){
+        User.locations.forEach(location => {
+            document.querySelector(`#${location}Checkbox`).checked = true;
+        })
+        document.querySelector(".selectLocationsModal").style.display = "block";
+    }
+
+    function closeLocationsModal(){
+        document.querySelector(".selectLocationsModal").style.display = "none";
+    }
+
+    function openLogoutModal(){
+        document.querySelector(".logoutModal").style.display = "block";
+    }
+    
+    function closeLogoutModal(){
+        document.querySelector(".logoutModal").style.display = "none";
+    }
+
+    document.querySelector("#logoutButton").addEventListener("click", (event) => openLogoutModal());
+    document.querySelector("#clearButton").addEventListener("click", (event) => {
+        document.querySelectorAll(".LocationCheckbox").forEach(element => element.checked = false);
+    })
+    document.querySelector("#selectLocationsButton").addEventListener("click", (event) => openLocationsModal());
+    document.querySelector("#cancelButtonInLocations").addEventListener("click", (event) => closeLocationsModal());
+    document.querySelector(".closeButtonInLocationsModal").addEventListener("click", (event) => closeLocationsModal());
+    document.querySelector(".closeButtonInLogoutModal").addEventListener("click", (event) => closeLogoutModal());
+    document.querySelector("#cancelButtonInLogout").addEventListener("click", (event) => closeLogoutModal());
+    document.querySelector("#logoutButtonInLogout").addEventListener("click", (event) => location.assign("/logout"));
+
+
+    document.querySelector("#updateButton").addEventListener("click", async (event) => {
+        
+        // currentUserNumber, locationsChecked
+        const  currentUserNumber = User.phonenumber; 
+        console.log(currentUserNumber)
+        let locationsChecked = [];
+
+        document.querySelectorAll(".LocationCheckbox").forEach(element => {
+            if(element.checked)
+                locationsChecked.push(element.getAttribute("name"));
+        });
+        
+        try{
+            const res = await fetch("/selectLocations",{
+                method : "POST",
+                headers : {"Content-Type" : "application/json"},
+                body : JSON.stringify({currentUserNumber, locationsChecked})
+            })
+
+            const response = await res.json();
+            if(response.user){
+                location.reload();
+            }
+        }   
+        catch(error){
+            console.log(error)
+        }
+    })
+
+</script>

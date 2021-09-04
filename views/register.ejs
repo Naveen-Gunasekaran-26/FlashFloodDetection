@@ -1,0 +1,155 @@
+<%- include('partials/header.ejs') %>
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<h1 class="registerTitle">Register</h1>
+<div style="margin: 10px 0px 0px 10px;">
+    <form class="formElement">
+
+        <div class="row">
+            <label for="username">Username</label>
+            <input name="username" id="username" type="text">
+            <div class="username error"></div>
+        </div>
+    
+        
+        <div class="row">
+            <label for="email">Email</label>
+            <input name="email" id="email" type="email">
+            <div class="email error"></div>
+        </div>
+    
+    
+        <div class="row">
+            <label for="phonenumber">Phone Number</label>
+            <input name="phonenumber" id="phonenumber" type="tel">
+            <div class="phonenumber error"></div>
+        </div>
+    
+        
+        <div class="row">
+            <label for="password">Password</label>
+            <input name="password" id="password1" type="password">
+            <i class="fas fa-eye-slash" id="togglePassword1"></i>
+            <div class="password error"></div>
+        </div>
+        
+    
+        <div class="row">
+            <label for="password2">Confirm Password</label>
+            <input name="password2" id="password2" type="password">
+            <i class="fas fa-eye-slash" id="togglePassword2"></i>
+            <div class="password2 error"></div>
+        </div>
+    
+    
+        <button type="submit" style="margin: 5px 0px 5px 0px">Register</button>
+        <div class="submissionStatus success"></div>
+    
+    </form>
+    
+    <p>Already a user ? <a href="login">Login</a></p>
+    <a href="index">Home</a>    
+</div>
+
+<script>
+
+
+    const form = document.querySelector("form");
+    const togglePassword1 = document.querySelector("#togglePassword1");
+    const togglePassword2 = document.querySelector("#togglePassword2");
+    const password1 = document.querySelector("#password1");
+    const password2 = document.querySelector("#password2");
+    const submissionStatus = document.querySelector(".submissionStatus");
+
+
+
+    const usernameError = document.querySelector(".username.error");
+    const emailError = document.querySelector(".email.error");
+    const phonenumberError = document.querySelector(".phonenumber.error");
+    const passwordError = document.querySelector(".password.error");
+    const password2Error = document.querySelector(".password2.error");
+    
+
+
+    togglePassword1.addEventListener("click", (event) => {
+
+        const type = password1.getAttribute("type") === "password" ? "text" : "password";
+        password1.setAttribute("type", type);
+
+        if(type === "text")
+            togglePassword1.setAttribute("class","fas fa-eye");
+        else
+            togglePassword1.setAttribute("class","fas fa-eye-slash");
+    });
+
+
+
+    togglePassword2.addEventListener("click", (event) => {
+
+        const type = password2.getAttribute("type") === "password" ? "text" : "password";
+        password2.setAttribute("type", type);
+
+        if(type === "text")
+            togglePassword2.setAttribute("class","fas fa-eye");
+        else
+            togglePassword2.setAttribute("class","fas fa-eye-slash");
+    });
+
+
+
+    form.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+        const username = form.username.value;
+        const email = form.email.value;
+        const phonenumber = form.phonenumber.value;
+        const password = form.password.value;
+        const password2 = form.password2.value;
+
+        console.log("FORM VALUES", username, email, phonenumber, password, password2);
+
+        usernameError.textContent = "";
+        emailError.textContent = "";
+        phonenumberError.textContent = "";
+        passwordError.textContent = "";
+        password2Error.textContent = "";
+
+
+        try{
+
+            const res = await fetch("/register", {
+                method : "POST",
+                body : JSON.stringify({username, email, phonenumber, password, password2}),
+                headers : {'Content-Type' : 'application/json'}
+            });
+
+            const response = await res.json();
+            
+            if(response.errors){
+                console.log(response);
+                usernameError.textContent = response.errors.username;
+                emailError.textContent = response.errors.email;
+                phonenumberError.textContent = response.errors.phonenumber;
+                passwordError.textContent = response.errors.password;
+                password2Error.textContent = response.errors.password2;
+
+            }
+            if(response.user){
+
+                submissionStatus.innerHTML = "Success";
+                console.log(response.user);
+                location.assign("dashboard");
+            }
+        }
+        catch(error){
+
+            console.log("Error catched in register\.ejs", error);
+
+        }
+
+    })
+
+
+</script>

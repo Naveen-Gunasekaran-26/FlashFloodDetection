@@ -1,0 +1,199 @@
+* {
+    margin: 0;
+}
+
+html{
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #ebe5e5;
+}
+
+.error{
+    color: rgb(245, 31, 31);
+}
+
+.success{
+    color: green;
+}
+
+.selectLocationsModal{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.logoutModal{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.selectLocationsModalContent{
+
+    background-color: #f0e3f1;
+    color: #3d133a;
+    margin: 10% auto;
+    padding: 20px;
+    padding-left: 50px;
+    width: 70%;
+    box-shadow: 5px 10px 10px black;
+    animation-name: modalOpen;
+    animation-duration: 0.5s;
+    border-radius: 10px;
+}
+
+.logoutModalContent{
+
+    background-color: #f0e3f1;
+    color: #3d133a;
+    margin: 10% auto;
+    padding: 15px;
+    padding-left: 30px;
+    width: 40%;
+    box-shadow: 5px 10px 10px black;
+    animation-name: modalOpen;
+    animation-duration: 0.5s;
+    border-radius: 10px;
+}
+
+.closeButtonInLocationsModal{
+    color: rgb(100, 100, 100);
+    float: right;
+    font-size: 40px;
+}
+
+.closeButtonInLocationsModal:hover{
+    color: #301b3f;
+    cursor: pointer;
+}
+
+
+.closeButtonInLogoutModal{
+    color: rgb(100, 100, 100);
+    float: right;
+    font-size: 40px;
+}
+
+.closeButtonInLogoutModal:hover{
+    color: #301b3f;
+    cursor: pointer;
+}
+
+
+@keyframes modalOpen{
+    from{
+        opacity: 0;
+    }
+    to{
+        opacity: 1;
+    }
+}
+
+
+.DashboardTitle, .welcomeTitle, .loginTitle , .registerTitle{
+    background-color: #301b3f;
+    color: white;
+    padding: 20px;
+    border : solid #301b3f;
+}
+
+
+.locationTile{
+    border: solid #301b3f 2px;
+    border-radius: 15px;
+    margin: 10px;
+    padding : 20px;
+    padding-left: 20px;
+    width: 30%;
+    transition: background-color 0.2s, color 0.2s, padding 0.2s;
+}
+
+
+.locationTile:hover{
+    cursor: pointer;
+    padding: 25px;
+    background-color: #301b3f;
+    color: white;
+}
+
+button{
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 15px;
+    border: transparent;
+    background-color: rgb(217, 161, 224);
+    color: rgb(0, 0, 0);
+    transition: background-color 0.1s, color 0.2s;
+}
+
+button:hover{
+    background-color: rgb(75, 24, 83);
+    color: white;
+    cursor: pointer;
+}
+
+.linkButton{
+    background-color: #3a2747;
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    display: inline-block;
+    text-align: center;
+    margin: 2px;
+    width: 6%;
+    transition: background-color 0.2s;
+}
+
+.linkButton:hover{
+    background-color: #6f498a;
+}
+
+.indexPageImg{
+    background-image: url(pic1.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.row{
+    width: 40%;
+    margin-bottom: 5px;
+}
+
+.row label{
+    display: inline-block;
+    clear: left;
+    width: 200px;
+}
+
+.row input{
+    display: inline-block;
+}
+
+.formElement{
+    margin: 20px 0px 20px 20px;
+}
+
+.phoneNumberHolder{
+    background-color: rgb(64, 22, 68);
+    color: aliceblue;
+    padding: 5px 5px 5px 15px;
+    border-radius: 20px;
+    display: inline-block;
+    width: 150px;
+}
+
+.dashboardBody{
+    margin-left: 30px;
+}
