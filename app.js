@@ -51,8 +51,8 @@ io.on("connection", async (socket) => {
 
 
 
-// Database
-const dbURI = "mongodb+srv://gn2601:PEWDIEPIEGN@cluster0.zxfzz.mongodb.net/FinalYearProject?retryWrites=true&w=majority";
+// Database connection
+const dbURI = "";
 mongoose.connect(dbURI, { useNewUrlParser : true, useUnifiedTopology : true, useFindAndModify : false, useCreateIndex : true }, (err) => {
     if(err)
         console.log("DB Error !", err.message);
